@@ -63,7 +63,7 @@ jobs:
         env:
           SSH_PRIVATE_KEY: ${{ secrets.HOSTINGER_SSH_PRIVATE_KEY }}
           ARGS: "-rlgoDzvc -i --delete"
-          EXCLUDE: "/.env, /.env.*"
+          EXCLUDE: "/backend/.env, /backend/.env.*, /backend/storage/logs/*, /backend/storage/framework/sessions/*, /backend/storage/framework/cache/*, /backend/storage/framework/views/*"
           SOURCE: "./"
           REMOTE_HOST: ${{ secrets.HOSTINGER_SSH_HOST }}
           REMOTE_USER: ${{ secrets.HOSTINGER_SSH_USERNAME }}
@@ -72,8 +72,19 @@ jobs:
           SCRIPT_AFTER: |
             echo "Running post-deployment commands on Hostinger..."
             cd ~/domains/drealtiesfx.com/backend
+            
+            # Ensure .env exists, if not copy from example
+            if [ ! -f .env ]; then
+              echo "⚠️  .env file not found, deployment may need manual .env setup"
+            fi
+            
+            # Ensure storage directories exist
+            mkdir -p storage/framework/sessions storage/framework/views storage/framework/cache/data storage/logs
+            chmod -R 775 storage bootstrap/cache
+            
+            # Run Laravel commands
             php artisan migrate --force
             php artisan config:cache
             php artisan route:cache
             php artisan view:cache
-            echo "Deployment configuration cached successfully!"
+            echo "✅ Deployment configuration cached successfully!"
