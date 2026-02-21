@@ -47,6 +47,13 @@ jobs:
           
           # We only need the backend directory and public_html structure setup
           mv backend/public public_html
+          
+          # Patch public_html/index.php to point to the backend folder
+          sed -i "s|__DIR__.'/../vendor/autoload.php'|__DIR__.'/../backend/vendor/autoload.php'|g" public_html/index.php
+          sed -i "s|__DIR__.'/../bootstrap/app.php'|__DIR__.'/../backend/bootstrap/app.php'|g" public_html/index.php
+          sed -i "s|__DIR__.'/../storage/framework/maintenance.php'|__DIR__.'/../backend/storage/framework/maintenance.php'|g" public_html/index.php
+          
+          # Clean up everything else except backend and public_html
           find . -maxdepth 1 ! -name 'backend' ! -name 'public_html' ! -name '.' -exec rm -rf {} +
 
       - name: Deploy to Hostinger via SSH/Rsync
@@ -54,6 +61,7 @@ jobs:
         env:
           SSH_PRIVATE_KEY: ${{ secrets.HOSTINGER_SSH_PRIVATE_KEY }}
           ARGS: "-rlgoDzvc -i --delete"
+          EXCLUDE: "/.env, /.env.*"
           SOURCE: "./"
           REMOTE_HOST: ${{ secrets.HOSTINGER_SSH_HOST }}
           REMOTE_USER: ${{ secrets.HOSTINGER_SSH_USERNAME }}
