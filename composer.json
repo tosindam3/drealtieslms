@@ -1,0 +1,5 @@
+{
+    "require-dev": {
+        "thecodeholic/laravel-hostinger-deploy": "0.5"
+    }
+}

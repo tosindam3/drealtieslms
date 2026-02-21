@@ -1,0 +1,69 @@
+name: Deploy to Hostinger via Rsync
+
+on:
+  push:
+    branches:
+      - main
+      - staging
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          extensions: mbstring, xml, ctype, iconv, intl, pdo_sqlite, dom, filter, gd, iconv, json, libxml, mbstring, openssl, pcre, pdo, Phar, SimpleXML, tokenizer, xml, xmlwriter, zlib
+          coverage: none
+
+      - name: Install Composer Dependencies
+        working-directory: ./backend
+        run: composer install -q --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist --optimize-autoloader
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install NPM Dependencies & Build React
+        run: |
+          npm ci
+          npm run build
+
+      - name: Prepare Deployment Artifacts
+        run: |
+          # The easingthemes action pushes exactly the SOURCE folder.
+          # We'll merge frontend build into backend/public for Hostinger.
+          cp -r dist/* backend/public/
+          
+          # Clean up the .git so we don't sync it
+          rm -rf .git .github
+          
+          # We only need the backend directory and public_html structure setup
+          mv backend/public public_html
+          find . -maxdepth 1 ! -name 'backend' ! -name 'public_html' ! -name '.' -exec rm -rf {} +
+
+      - name: Deploy to Hostinger via SSH/Rsync
+        uses: easingthemes/ssh-deploy@main
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.HOSTINGER_SSH_PRIVATE_KEY }}
+          ARGS: "-rlgoDzvc -i --delete"
+          SOURCE: "./"
+          REMOTE_HOST: ${{ secrets.HOSTINGER_SSH_HOST }}
+          REMOTE_USER: ${{ secrets.HOSTINGER_SSH_USERNAME }}
+          REMOTE_PORT: ${{ secrets.HOSTINGER_SSH_PORT }}
+          TARGET: "domains/drealtiesfx.com/"
+          SCRIPT_AFTER: |
+            echo "Running post-deployment commands on Hostinger..."
+            cd ~/domains/drealtiesfx.com/backend
+            php artisan migrate --force
+            php artisan config:cache
+            php artisan route:cache
+            php artisan view:cache
+            echo "Deployment configuration cached successfully!"

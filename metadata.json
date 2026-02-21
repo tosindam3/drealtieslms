@@ -1,0 +1,8 @@
+{
+  "name": "Dreallies Course Management",
+  "description": "A sophisticated educational dashboard for managing VR game development courses, featuring program overview, cohort tracking, and AI-assisted content generation.",
+  "requestFramePermissions": [
+    "camera",
+    "microphone"
+  ]
+}
