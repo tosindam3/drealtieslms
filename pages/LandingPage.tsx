@@ -147,6 +147,9 @@ export const LandingPage: React.FC<{
       console.log('🔐 Attempting authentication:', authMode);
       console.log('🔐 Email:', data.email);
 
+      // Fetch CSRF cookie before authentication
+      await apiClient.getCsrfCookie();
+
       const endpoint = authMode === 'login' ? '/api/auth/login' : '/api/auth/register';
       const response = await apiClient.post(endpoint, data);
 

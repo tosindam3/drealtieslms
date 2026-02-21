@@ -82,6 +82,7 @@ export const apiClient = {
     const response = await fetch(`${API_BASE_URL}${endpoint}`, {
       method: 'GET',
       headers: getAuthHeaders(),
+      credentials: 'include',
     });
 
     const data = await handleResponse(response, 'GET', endpoint);
@@ -94,6 +95,7 @@ export const apiClient = {
     const response = await fetch(`${API_BASE_URL}${endpoint}`, {
       method: 'POST',
       headers: getAuthHeaders(isFormData),
+      credentials: 'include',
       body: isFormData ? data : JSON.stringify(data),
     });
 
@@ -106,6 +108,7 @@ export const apiClient = {
     const response = await fetch(`${API_BASE_URL}${endpoint}`, {
       method: 'PATCH',
       headers: getAuthHeaders(),
+      credentials: 'include',
       body: JSON.stringify(data),
     });
 
@@ -118,6 +121,7 @@ export const apiClient = {
     const response = await fetch(`${API_BASE_URL}${endpoint}`, {
       method: 'PUT',
       headers: getAuthHeaders(),
+      credentials: 'include',
       body: JSON.stringify(data),
     });
 
@@ -130,11 +134,19 @@ export const apiClient = {
     const response = await fetch(`${API_BASE_URL}${endpoint}`, {
       method: 'DELETE',
       headers: getAuthHeaders(),
+      credentials: 'include',
     });
 
     const data = await handleResponse(response, 'DELETE', endpoint);
     logger('DELETE', endpoint, null, data);
     return data;
+  },
+
+  async getCsrfCookie() {
+    await fetch(`${API_BASE_URL}/sanctum/csrf-cookie`, {
+      method: 'GET',
+      credentials: 'include',
+    });
   },
 
   // Authentication helpers
