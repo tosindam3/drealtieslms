@@ -1,23 +1,101 @@
+# Dependencies
 node_modules/
+backend/vendor/
+
+# Build outputs
 dist/
 dist-ssr/
-*.local
+backend/public/hot
+backend/public/storage
+backend/public/build
+
+# Environment files
 .env
 .env.*
 !.env.example
+!.env.production
+backend/.env
+backend/.env.*
+!backend/.env.example
+
+# IDE
 .vscode/*
 !.vscode/extensions.json
 .idea
+*.swp
+*.swo
+*~
+
+# OS
 .DS_Store
+Thumbs.db
+
+# Logs
 *.log
-backend/vendor/
-backend/.env
-backend/.phpunit.result.cache
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
 backend/storage/logs/*.log
+
+# Laravel cache & temp files
+backend/.phpunit.result.cache
 backend/storage/framework/cache/data/*
 backend/storage/framework/sessions/*
 backend/storage/framework/testing/*
 backend/storage/framework/views/*
+backend/bootstrap/cache/*
+!backend/bootstrap/cache/.gitkeep
+
+# Test files
+*.test.js
+*.test.ts
+*.test.tsx
+*.spec.js
+*.spec.ts
+*.spec.tsx
+__tests__/
+coverage/
+.nyc_output/
+
+# Documentation (if not needed in production)
+*.md
+!README.md
+!CHANGELOG.md
+docs/
+
+# Temporary files
+*.tmp
+*.temp
+*.bak
+*.swp
+*~
+.htaccess.tmp
+temp_*
+tmp_*
+
+# Deployment artifacts
 deploy.tar.gz
 setup-secrets.*
+*.ppk
+*.pem
+id_rsa*
+*.key
+
+# Sensitive directories
+SAVE KEY/
 SAVE kEY/
+.ssh/
+
+# Build artifacts
+*.tgz
+*.zip
+*.tar.gz
+
+# Package manager
+package-lock.json
+yarn.lock
+composer.lock
+
+# Misc
+.cache/
+.parcel-cache/
