@@ -32,6 +32,8 @@ jobs:
           cache: 'npm'
 
       - name: Install NPM Dependencies & Build React
+        env:
+          VITE_API_URL: https://www.drealtiesfx.com
         run: |
           npm ci
           npm run build
