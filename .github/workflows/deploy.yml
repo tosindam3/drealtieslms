@@ -40,51 +40,76 @@ jobs:
 
       - name: Prepare Deployment Artifacts
         run: |
-          # The easingthemes action pushes exactly the SOURCE folder.
-          # We'll merge frontend build into backend/public for Hostinger.
-          cp -r dist/* backend/public/
+          # Build frontend and prepare for deployment
+          # Copy React build to a temporary location
+          mkdir -p deploy_temp/public_html
+          cp -r dist/* deploy_temp/public_html/
           
-          # Clean up the .git so we don't sync it
-          rm -rf .git .github
+          # Copy backend to deploy location
+          cp -r backend deploy_temp/
           
-          # We only need the backend directory and public_html structure setup
-          mv backend/public public_html
+          # Copy React build files to backend/public as well (for Laravel to serve assets)
+          cp -r dist/* deploy_temp/backend/public/
           
           # Patch public_html/index.php to point to the backend folder
-          sed -i "s|__DIR__.'/../vendor/autoload.php'|__DIR__.'/../backend/vendor/autoload.php'|g" public_html/index.php
-          sed -i "s|__DIR__.'/../bootstrap/app.php'|__DIR__.'/../backend/bootstrap/app.php'|g" public_html/index.php
-          sed -i "s|__DIR__.'/../storage/framework/maintenance.php'|__DIR__.'/../backend/storage/framework/maintenance.php'|g" public_html/index.php
+          sed -i "s|__DIR__.'/../vendor/autoload.php'|__DIR__.'/../backend/vendor/autoload.php'|g" deploy_temp/public_html/index.php
+          sed -i "s|__DIR__.'/../bootstrap/app.php'|__DIR__.'/../backend/bootstrap/app.php'|g" deploy_temp/public_html/index.php
+          sed -i "s|__DIR__.'/../storage/framework/maintenance.php'|__DIR__.'/../backend/storage/framework/maintenance.php'|g" deploy_temp/public_html/index.php
           
-          # Clean up everything else except backend and public_html
-          find . -maxdepth 1 ! -name 'backend' ! -name 'public_html' ! -name '.' -exec rm -rf {} +
+          # Move deploy_temp contents to root for rsync
+          mv deploy_temp/* ./
+          rm -rf deploy_temp
+          
+          # Clean up unnecessary files
+          rm -rf .git .github node_modules
 
       - name: Deploy to Hostinger via SSH/Rsync
         uses: easingthemes/ssh-deploy@main
         env:
           SSH_PRIVATE_KEY: ${{ secrets.HOSTINGER_SSH_PRIVATE_KEY }}
           ARGS: "-rlgoDzvc -i --delete"
-          EXCLUDE: "/backend/.env, /backend/.env.*, /backend/storage/logs/*, /backend/storage/framework/sessions/*, /backend/storage/framework/cache/*, /backend/storage/framework/views/*"
+          EXCLUDE: "/backend/.env, /backend/storage/, /backend/bootstrap/cache/"
           SOURCE: "./"
           REMOTE_HOST: ${{ secrets.HOSTINGER_SSH_HOST }}
           REMOTE_USER: ${{ secrets.HOSTINGER_SSH_USERNAME }}
           REMOTE_PORT: ${{ secrets.HOSTINGER_SSH_PORT }}
           TARGET: "domains/drealtiesfx.com/"
           SCRIPT_AFTER: |
-            echo "Running post-deployment commands on Hostinger..."
+            echo "🚀 Running post-deployment commands on Hostinger..."
             cd ~/domains/drealtiesfx.com/backend
             
-            # Ensure .env exists, if not copy from example
+            # Check if .env exists
             if [ ! -f .env ]; then
-              echo "⚠️  .env file not found, deployment may need manual .env setup"
+              echo "❌ ERROR: .env file not found! Deployment incomplete."
+              exit 1
             fi
             
-            # Ensure storage directories exist
-            mkdir -p storage/framework/sessions storage/framework/views storage/framework/cache/data storage/logs
+            # Ensure storage directories exist with correct structure
+            mkdir -p storage/framework/sessions
+            mkdir -p storage/framework/views  
+            mkdir -p storage/framework/cache/data
+            mkdir -p storage/logs
+            mkdir -p storage/app/public
+            mkdir -p bootstrap/cache
+            
+            # Set correct permissions
             chmod -R 775 storage bootstrap/cache
             
-            # Run Laravel commands
+            # Clear all caches before recaching
+            php artisan config:clear || true
+            php artisan route:clear || true
+            php artisan view:clear || true
+            php artisan cache:clear || true
+            
+            # Run migrations
             php artisan migrate --force
+            
+            # Recache for production
             php artisan config:cache
             php artisan route:cache
             php artisan view:cache
-            echo "✅ Deployment configuration cached successfully!"
+            
+            # Verify deployment
+            echo "✅ Deployment completed successfully!"
+            echo "📊 Checking Laravel status..."
+            php artisan --version
