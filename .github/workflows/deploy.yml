@@ -41,27 +41,33 @@ jobs:
       - name: Prepare Deployment Artifacts
         run: |
           # Build frontend and prepare for deployment
-          # Copy React build to a temporary location
+          # Create deployment structure
           mkdir -p deploy_temp/public_html
+          mkdir -p deploy_temp/backend
+          
+          # Copy React build to public_html
           cp -r dist/* deploy_temp/public_html/
           
-          # Copy backend to deploy location
-          cp -r backend deploy_temp/
+          # Copy entire backend directory
+          cp -r backend/* deploy_temp/backend/
           
-          # Copy React build files to backend/public as well (for Laravel to serve assets)
-          cp -r dist/* deploy_temp/backend/public/
+          # Copy Laravel's index.php to public_html and patch it
+          cp backend/public/index.php deploy_temp/public_html/index.php
           
           # Patch public_html/index.php to point to the backend folder
           sed -i "s|__DIR__.'/../vendor/autoload.php'|__DIR__.'/../backend/vendor/autoload.php'|g" deploy_temp/public_html/index.php
           sed -i "s|__DIR__.'/../bootstrap/app.php'|__DIR__.'/../backend/bootstrap/app.php'|g" deploy_temp/public_html/index.php
           sed -i "s|__DIR__.'/../storage/framework/maintenance.php'|__DIR__.'/../backend/storage/framework/maintenance.php'|g" deploy_temp/public_html/index.php
           
+          # Also copy React build to backend/public for Laravel asset serving
+          cp -r dist/* deploy_temp/backend/public/
+          
           # Move deploy_temp contents to root for rsync
           mv deploy_temp/* ./
           rm -rf deploy_temp
           
           # Clean up unnecessary files
-          rm -rf .git .github node_modules
+          rm -rf .git .github node_modules dist
 
       - name: Deploy to Hostinger via SSH/Rsync
         uses: easingthemes/ssh-deploy@main
