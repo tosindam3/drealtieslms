@@ -13,6 +13,9 @@ jobs:
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
+        with:
+          clean: true
+          fetch-depth: 0
 
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
@@ -31,12 +34,24 @@ jobs:
           node-version: '20'
           cache: 'npm'
 
+      - name: Clear npm cache and verify dependencies
+        run: |
+          npm cache clean --force
+          echo "📦 Installing fresh dependencies..."
+          
       - name: Install NPM Dependencies & Build React
         env:
           VITE_API_URL: https://www.drealtiesfx.com
         run: |
           npm ci
+          echo "🔍 Verifying apiClient.ts has CSRF fixes..."
+          grep -q "getCsrfCookie" lib/apiClient.ts && echo "✅ getCsrfCookie found" || echo "❌ getCsrfCookie NOT found"
+          grep -q "credentials.*include" lib/apiClient.ts && echo "✅ credentials: include found" || echo "❌ credentials: include NOT found"
+          echo "🏗️  Building React app..."
           npm run build
+          echo "🔍 Verifying build output..."
+          ls -lh dist/assets/index-*.js
+          grep -q "getCsrfCookie" dist/assets/index-*.js && echo "✅ CSRF fix in build" || echo "❌ CSRF fix NOT in build"
 
       - name: Prepare Deployment Artifacts
         run: |
