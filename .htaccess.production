@@ -29,3 +29,23 @@ DirectoryIndex index.html index.php
     # Handle React SPA routes (everything else to index.html)
     RewriteRule ^ index.html [L]
 </IfModule>
+
+# Cache Control for Static Assets
+<IfModule mod_headers.c>
+    # Cache JS and CSS for 1 year (Vite adds hashes to filenames)
+    <FilesMatch "\.(js|css)$">
+        Header set Cache-Control "public, max-age=31536000, immutable"
+    </FilesMatch>
+    
+    # Cache images for 1 month
+    <FilesMatch "\.(jpg|jpeg|png|gif|ico|svg|webp)$">
+        Header set Cache-Control "public, max-age=2592000"
+    </FilesMatch>
+    
+    # Don't cache HTML files
+    <FilesMatch "\.(html|htm)$">
+        Header set Cache-Control "no-cache, no-store, must-revalidate"
+        Header set Pragma "no-cache"
+        Header set Expires "0"
+    </FilesMatch>
+</IfModule>
