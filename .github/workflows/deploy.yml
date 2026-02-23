@@ -51,6 +51,12 @@ jobs:
           # Copy entire backend directory
           cp -r backend/* deploy_temp/backend/
           
+          # Copy .env.production as .env.example for reference (actual .env preserved on server)
+          if [ -f .env.production ]; then
+            cp .env.production deploy_temp/backend/.env.example
+            echo "✅ Copied .env.production as .env.example"
+          fi
+          
           # Copy Laravel's index.php to public_html and patch it
           cp backend/public/index.php deploy_temp/public_html/index.php
           
@@ -58,6 +64,14 @@ jobs:
           sed -i "s|__DIR__.'/../vendor/autoload.php'|__DIR__.'/../backend/vendor/autoload.php'|g" deploy_temp/public_html/index.php
           sed -i "s|__DIR__.'/../bootstrap/app.php'|__DIR__.'/../backend/bootstrap/app.php'|g" deploy_temp/public_html/index.php
           sed -i "s|__DIR__.'/../storage/framework/maintenance.php'|__DIR__.'/../backend/storage/framework/maintenance.php'|g" deploy_temp/public_html/index.php
+          
+          # Copy .htaccess.production to public_html as .htaccess
+          if [ -f .htaccess.production ]; then
+            cp .htaccess.production deploy_temp/public_html/.htaccess
+            echo "✅ Copied .htaccess.production to public_html/.htaccess"
+          else
+            echo "⚠️  Warning: .htaccess.production not found"
+          fi
           
           # Also copy React build to backend/public for Laravel asset serving
           cp -r dist/* deploy_temp/backend/public/
