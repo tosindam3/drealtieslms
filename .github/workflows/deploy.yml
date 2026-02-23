@@ -1,10 +1,11 @@
 name: Deploy to Hostinger via Rsync
 
 on:
-  push:
-    branches:
-      - main
-      - staging
+  workflow_dispatch:  # Manual trigger only - auto-deploy disabled until build issue resolved
+  # push:
+  #   branches:
+  #     - main
+  #     - staging
 
 jobs:
   deploy:
