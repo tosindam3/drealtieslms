@@ -62,12 +62,11 @@ jobs:
           # Also copy React build to backend/public for Laravel asset serving
           cp -r dist/* deploy_temp/backend/public/
           
-          # Move deploy_temp contents to root for rsync
-          mv deploy_temp/* ./
+          # Clean up current directory and move deploy_temp contents
+          rm -rf backend public_html .git .github node_modules dist
+          mv deploy_temp/backend ./
+          mv deploy_temp/public_html ./
           rm -rf deploy_temp
-          
-          # Clean up unnecessary files
-          rm -rf .git .github node_modules dist
 
       - name: Deploy to Hostinger via SSH/Rsync
         uses: easingthemes/ssh-deploy@main
