@@ -240,11 +240,10 @@ class CohortService
     {
         $enrollment = Enrollment::where('user_id', $student->id)
             ->where('cohort_id', $cohort->id)
-            ->where('status', Enrollment::STATUS_ACTIVE)
             ->first();
 
         if (!$enrollment) {
-            throw new EnrollmentException('Student is not actively enrolled in this cohort');
+            throw new EnrollmentException('Student is not enrolled in this cohort');
         }
 
         DB::transaction(function () use ($enrollment, $cohort, $reason) {

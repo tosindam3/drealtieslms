@@ -188,7 +188,7 @@ class CohortController extends Controller
             $passedQuizIds = QuizAttempt::where('user_id', $user->id)->where('passed', true)->pluck('quiz_id')->unique()->toArray();
             $approvedAssignmentIds = AssignmentSubmission::where('user_id', $user->id)->where('status', 'approved')->pluck('assignment_id')->unique()->toArray();
             $attendedLiveClassIds = LiveAttendance::where('user_id', $user->id)->pluck('live_class_id')->toArray();
-            
+
             // Fetch lesson block completions (for embedded quizzes, assignments, etc.)
             $lessonBlockCompletions = \App\Models\LessonBlockCompletion::where('user_id', $user->id)
                 ->where('is_completed', true)
@@ -353,7 +353,7 @@ class CohortController extends Controller
                                             ->map(function ($block) use ($lesson, $passedQuizIds, $approvedAssignmentIds, $attendedLiveClassIds, $lessonBlockCompletions) {
                                                 $isCompleted = false;
                                                 $blockKey = $lesson->id . '_' . ($block['id'] ?? '');
-                                                
+
                                                 // Check lesson block completions first (for embedded quizzes/assignments)
                                                 if (isset($lessonBlockCompletions[$blockKey])) {
                                                     $completion = $lessonBlockCompletions[$blockKey];
@@ -371,7 +371,7 @@ class CohortController extends Controller
                                                 } elseif ($block['type'] === 'live' && isset($block['payload']['liveClassId'])) {
                                                     $isCompleted = in_array($block['payload']['liveClassId'], $attendedLiveClassIds);
                                                 }
-                                                
+
                                                 $block['isCompleted'] = $isCompleted;
                                                 $block['lessonId'] = (string) $lesson->id;
                                                 return $block;
