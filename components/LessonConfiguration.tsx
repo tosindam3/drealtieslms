@@ -1,8 +1,8 @@
 import React, { useState, useRef } from 'react';
-import { 
-  ChevronDown, 
-  ChevronRight, 
-  Upload, 
+import {
+  ChevronDown,
+  ChevronRight,
+  Upload,
   Sparkles,
   Trash2,
   AlertCircle,
@@ -20,12 +20,12 @@ interface LessonConfigurationProps {
   onSave: (lesson: Lesson) => void;
 }
 
-export const LessonConfiguration: React.FC<LessonConfigurationProps> = ({ 
-  courseTitle, 
-  week, 
-  lesson, 
-  onCancel, 
-  onSave 
+export const LessonConfiguration: React.FC<LessonConfigurationProps> = ({
+  courseTitle,
+  week,
+  lesson,
+  onCancel,
+  onSave
 }) => {
   const [formData, setFormData] = useState<Lesson>(lesson);
   const [isGeneratingImage, setIsGeneratingImage] = useState(false);
@@ -44,7 +44,7 @@ export const LessonConfiguration: React.FC<LessonConfigurationProps> = ({
     setIsGeneratingImage(true);
     try {
       // Fix: Ensure a new client is created using the environment API key
-      const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+      const ai = new GoogleGenAI({ apiKey: import.meta.env.VITE_GEMINI_API_KEY });
       const response = await ai.models.generateContent({
         model: 'gemini-2.5-flash-image',
         contents: {
@@ -95,14 +95,14 @@ export const LessonConfiguration: React.FC<LessonConfigurationProps> = ({
       <div className="flex items-center justify-between mb-8">
         <h1 className="text-2xl font-bold text-[#1e293b]">Lesson Configuration</h1>
         <div className="flex items-center gap-3">
-          <button 
+          <button
             onClick={onCancel}
             className="px-6 py-2 bg-white border border-slate-200 text-slate-600 text-sm font-semibold rounded-md hover:bg-slate-50 transition-colors"
           >
             Cancel
           </button>
           <div className="flex items-center overflow-hidden rounded-md border border-blue-600 shadow-sm">
-            <button 
+            <button
               onClick={() => onSave(formData)}
               className="px-8 py-2 text-sm font-semibold text-white bg-blue-600 hover:bg-blue-700 transition-colors border-r border-blue-500"
             >
@@ -127,10 +127,10 @@ export const LessonConfiguration: React.FC<LessonConfigurationProps> = ({
             {/* Lesson Title */}
             <div className="space-y-2">
               <label className="text-xs font-bold text-slate-400 uppercase tracking-wider">Lesson Title</label>
-              <input 
-                type="text" 
+              <input
+                type="text"
                 value={formData.title}
-                onChange={(e) => setFormData({...formData, title: e.target.value})}
+                onChange={(e) => setFormData({ ...formData, title: e.target.value })}
                 className="w-full px-4 py-3 border border-slate-200 rounded-lg text-slate-800 font-medium focus:ring-2 focus:ring-blue-500 outline-none transition-all"
               />
             </div>
@@ -140,9 +140,9 @@ export const LessonConfiguration: React.FC<LessonConfigurationProps> = ({
               <div className="space-y-2">
                 <label className="text-xs font-bold text-slate-400 uppercase tracking-wider">Lesson Type</label>
                 <div className="relative">
-                  <select 
+                  <select
                     value={formData.type}
-                    onChange={(e) => setFormData({...formData, type: e.target.value as any})}
+                    onChange={(e) => setFormData({ ...formData, type: e.target.value as any })}
                     className="w-full px-4 py-3 border border-slate-200 rounded-lg text-slate-800 text-sm font-semibold appearance-none focus:ring-2 focus:ring-blue-500 outline-none bg-white pr-10"
                   >
                     {lessonTypes.map(type => (
@@ -155,7 +155,7 @@ export const LessonConfiguration: React.FC<LessonConfigurationProps> = ({
               <div className="space-y-2">
                 <label className="text-xs font-bold text-slate-400 uppercase tracking-wider">Duration Estimate</label>
                 <div className="relative">
-                  <select 
+                  <select
                     className="w-full px-4 py-3 border border-slate-200 rounded-lg text-slate-800 text-sm font-semibold appearance-none focus:ring-2 focus:ring-blue-500 outline-none bg-white pr-10"
                   >
                     <option>15 minutes</option>
@@ -173,10 +173,10 @@ export const LessonConfiguration: React.FC<LessonConfigurationProps> = ({
               <h3 className="text-sm font-bold text-[#1e293b]">Completion Requirements</h3>
               <div className="flex items-center gap-4">
                 <div className="flex items-center h-5">
-                  <input 
-                    type="checkbox" 
-                    defaultChecked 
-                    className="w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500 cursor-pointer" 
+                  <input
+                    type="checkbox"
+                    defaultChecked
+                    className="w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500 cursor-pointer"
                   />
                 </div>
                 <div className="flex items-center gap-2 text-sm font-medium">
@@ -204,10 +204,10 @@ export const LessonConfiguration: React.FC<LessonConfigurationProps> = ({
             <div className="pt-6 border-t border-slate-100 space-y-4">
               <h3 className="text-sm font-bold text-[#1e293b]">Lock Rules</h3>
               <div className="flex items-center gap-3">
-                <input 
+                <input
                   id="lock-content"
-                  type="checkbox" 
-                  className="w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500 cursor-pointer" 
+                  type="checkbox"
+                  className="w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500 cursor-pointer"
                 />
                 <label htmlFor="lock-content" className="text-sm text-slate-600 cursor-pointer select-none">
                   Lock this lesson until the student completes previous content
@@ -229,7 +229,7 @@ export const LessonConfiguration: React.FC<LessonConfigurationProps> = ({
           <div className="bg-white rounded-xl border border-slate-200 p-6 shadow-sm">
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-sm font-bold text-[#1e293b]">Thumbnail</h3>
-              <button 
+              <button
                 onClick={handleGenerateThumbnail}
                 disabled={isGeneratingImage}
                 className="text-xs font-bold text-purple-600 flex items-center gap-1 hover:text-purple-700 transition-colors disabled:opacity-50"
@@ -238,22 +238,22 @@ export const LessonConfiguration: React.FC<LessonConfigurationProps> = ({
                 {isGeneratingImage ? 'Generating...' : 'AI Generate'}
               </button>
             </div>
-            
-            <input 
-              type="file" 
-              ref={fileInputRef} 
-              className="hidden" 
-              accept="image/*" 
-              onChange={handleFileChange} 
+
+            <input
+              type="file"
+              ref={fileInputRef}
+              className="hidden"
+              accept="image/*"
+              onChange={handleFileChange}
             />
-            <div 
+            <div
               onClick={() => fileInputRef.current?.click()}
               className="relative aspect-[16/9] rounded-lg overflow-hidden group cursor-pointer border border-slate-100 mb-4 bg-slate-50 flex items-center justify-center"
             >
               {formData.thumbnailUrl ? (
-                <img 
-                  src={formData.thumbnailUrl} 
-                  alt="Lesson Thumbnail" 
+                <img
+                  src={formData.thumbnailUrl}
+                  alt="Lesson Thumbnail"
                   className="w-full h-full object-cover transition-transform group-hover:scale-105"
                 />
               ) : (
@@ -262,14 +262,14 @@ export const LessonConfiguration: React.FC<LessonConfigurationProps> = ({
                   <span className="text-xs font-medium">No Thumbnail</span>
                 </div>
               )}
-              
+
               <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
                 <button className="bg-white px-4 py-2 rounded-md text-xs font-bold flex items-center gap-2 text-[#1e293b] shadow-lg">
                   <Upload className="w-4 h-4" /> {formData.thumbnailUrl ? 'Change Image' : 'Upload Image'}
                 </button>
               </div>
             </div>
-            
+
             <div className="flex items-start gap-2 text-xs text-slate-400">
               <AlertCircle className="w-3 h-3 mt-0.5 shrink-0" />
               <p>Recommended size: 800 x 450px. This image will represent the lesson in the student dashboard.</p>

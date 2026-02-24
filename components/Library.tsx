@@ -61,7 +61,7 @@ export const Library: React.FC = () => {
   const handleAIGenerate = async () => {
     setIsGenerating(true);
     try {
-      const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+      const ai = new GoogleGenAI({ apiKey: import.meta.env.VITE_GEMINI_API_KEY });
       const response = await ai.models.generateContent({
         model: 'gemini-2.5-flash-image',
         contents: {
@@ -153,8 +153,8 @@ export const Library: React.FC = () => {
               key={tab}
               onClick={() => setActiveTab(tab)}
               className={`w-full flex items-center justify-between px-4 py-2.5 rounded-lg text-sm font-semibold transition-all ${activeTab === tab
-                  ? 'bg-blue-50 text-blue-600 border border-blue-100'
-                  : 'text-slate-500 hover:bg-slate-50'
+                ? 'bg-blue-50 text-blue-600 border border-blue-100'
+                : 'text-slate-500 hover:bg-slate-50'
                 }`}
             >
               {tab}

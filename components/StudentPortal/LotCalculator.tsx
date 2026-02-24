@@ -84,7 +84,7 @@ export const LotCalculator: React.FC = () => {
   const syncAiMentor = useCallback(async (pair: string) => {
     setIsAiLoading(true);
     try {
-      const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+      const ai = new GoogleGenAI({ apiKey: import.meta.env.VITE_GEMINI_API_KEY });
       const response = await ai.models.generateContent({
         model: 'gemini-3-flash-preview',
         contents: `Provide a technical 1-sentence market bias for ${pair}. Current price is ${livePrice.toFixed(4)}. Mention specific institutional levels or volatility expectations.`,
@@ -227,7 +227,7 @@ export const LotCalculator: React.FC = () => {
                     title="TradingView Chart"
                     src={`https://s.tradingview.com/widgetembed/?frameElementId=tradingview_76296&symbol=${PAIR_CONFIG[activePair].tvSymbol}&interval=${TIMEFRAME_MAP[timeframe]}&hidesidetoolbar=1&hidetoptoolbar=1&symboledit=1&saveimage=1&toolbarbg=f1f3f6&studies=%5B%5D&theme=dark&style=1&timezone=Etc%2FUTC&studies_overrides=%7B%7D&overrides=%7B%7D&enabled_features=%5B%5D&disabled_features=%5B%5D&locale=en&utm_source=drealtiesfx&utm_medium=widget&utm_campaign=chart&utm_term=${PAIR_CONFIG[activePair].tvSymbol}`}
                     className="w-full h-full border-none"
-                    allowtransparency="true"
+                    allowTransparency={true}
                   />
                 </div>
                 {isSyncing && (

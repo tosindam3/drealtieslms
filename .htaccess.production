@@ -15,8 +15,9 @@ DirectoryIndex index.html index.php
     RewriteCond %{HTTP:Authorization} .
     RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
 
-    # Serve static assets directly (JS, CSS, images, fonts)
-    RewriteCond %{REQUEST_URI} \.(js|css|png|jpg|jpeg|gif|ico|svg|webp|woff|woff2|ttf|eot)$ [NC]
+    # Don't rewrite if file or directory exists (must come first)
+    RewriteCond %{REQUEST_FILENAME} -f [OR]
+    RewriteCond %{REQUEST_FILENAME} -d
     RewriteRule ^ - [L]
 
     # Handle API and system requests (Laravel)
@@ -25,12 +26,7 @@ DirectoryIndex index.html index.php
     RewriteCond %{REQUEST_URI} ^/storage/
     RewriteRule ^ index.php [L]
 
-    # Handle existing files and folders
-    RewriteCond %{REQUEST_FILENAME} -f [OR]
-    RewriteCond %{REQUEST_FILENAME} -d
-    RewriteRule ^ - [L]
-
-    # Handle React SPA routes (everything else to index.html)
+    # Everything else goes to React index.html
     RewriteRule ^ index.html [L]
 </IfModule>
 

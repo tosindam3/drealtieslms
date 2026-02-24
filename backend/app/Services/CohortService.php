@@ -226,11 +226,10 @@ class CohortService
             // Clear caches
             $this->clearCohortCaches($cohort->id);
 
-            // Send completion email
-            $this->emailService->sendTemplateMail('cohort-concluded', $student->email, [
-                'user_name' => $student->name,
-                'cohort_name' => $cohort->name,
-            ]);
+            // Send completion email from the new template
+            \Illuminate\Support\Facades\Mail::to($student->email)->queue(
+                new \App\Mail\CourseCompletedMail($student, $cohort->name)
+            );
         });
     }
 
@@ -261,6 +260,11 @@ class CohortService
 
             // Clear caches
             $this->clearCohortCaches($cohort->id);
+
+            // Send unenrollment email
+            \Illuminate\Support\Facades\Mail::to($student->email)->queue(
+                new \App\Mail\UserUnenrolledMail($student, $cohort->name)
+            );
         });
     }
 

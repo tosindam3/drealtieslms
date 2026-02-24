@@ -4,7 +4,11 @@
  * Professional-grade HTTP client for Laravel backend
  */
 
-export const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+const isProd = import.meta.env.PROD;
+const envUrl = import.meta.env.VITE_API_URL;
+export const API_BASE_URL = isProd
+  ? (envUrl && !envUrl.includes('localhost') ? envUrl : '')
+  : (envUrl || 'http://localhost:8000');
 
 interface ApiError {
   message: string;
@@ -63,11 +67,21 @@ const handleResponse = async (response: Response, method: string, endpoint: stri
   return responseData;
 };
 
+const getCookie = (name: string): string | undefined => {
+  const value = `; ${document.cookie}`;
+  const parts = value.split(`; ${name}=`);
+  if (parts.length === 2) return decodeURIComponent(parts.pop()?.split(';').shift() || '');
+  return undefined;
+};
+
 const getAuthHeaders = (isFormData = false) => {
   const token = localStorage.getItem('auth_token');
+  const xsrfToken = getCookie('XSRF-TOKEN');
+
   const headers: Record<string, string> = {
     'Accept': 'application/json',
     ...(token && { 'Authorization': `Bearer ${token}` }),
+    ...(xsrfToken && { 'X-XSRF-TOKEN': xsrfToken }),
   };
 
   if (!isFormData) {
@@ -92,6 +106,12 @@ export const apiClient = {
 
   async post(endpoint: string, data: any) {
     const isFormData = data instanceof FormData;
+
+    // Automatically get CSRF cookie for login requests
+    if (endpoint === '/api/auth/login' || endpoint.includes('login')) {
+      await this.getCsrfCookie();
+    }
+
     const response = await fetch(`${API_BASE_URL}${endpoint}`, {
       method: 'POST',
       headers: getAuthHeaders(isFormData),

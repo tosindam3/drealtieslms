@@ -1,11 +1,11 @@
 name: Deploy to Hostinger via Rsync
 
 on:
-  workflow_dispatch:  # Manual trigger only - auto-deploy disabled until build issue resolved
-  # push:
-  #   branches:
-  #     - main
-  #     - staging
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+      - staging
 
 jobs:
   deploy:
@@ -43,6 +43,7 @@ jobs:
       - name: Install NPM Dependencies & Build React
         env:
           VITE_API_URL: https://www.drealtiesfx.com
+          VITE_GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
         run: |
           npm ci
           echo "🔍 Verifying apiClient.ts has CSRF fixes..."
@@ -102,8 +103,8 @@ jobs:
         uses: easingthemes/ssh-deploy@main
         env:
           SSH_PRIVATE_KEY: ${{ secrets.HOSTINGER_SSH_PRIVATE_KEY }}
-          ARGS: "-rlgoDzvc -i --delete"
-          EXCLUDE: "/backend/.env, /backend/storage/, /backend/bootstrap/cache/"
+          ARGS: "-rlgoDzvc -i"
+          EXCLUDE: "backend/.env, backend/storage/, backend/bootstrap/cache/, public_html/storage/"
           SOURCE: "./"
           REMOTE_HOST: ${{ secrets.HOSTINGER_SSH_HOST }}
           REMOTE_USER: ${{ secrets.HOSTINGER_SSH_USERNAME }}
@@ -113,21 +114,16 @@ jobs:
             echo "🚀 Running post-deployment commands on Hostinger..."
             cd ~/domains/drealtiesfx.com/backend
             
-            # Check if .env exists, if not create from .env.example
-            if [ ! -f .env ]; then
-              echo "⚠️  .env file not found! Creating from .env.example..."
-              if [ -f .env.example ]; then
-                cp .env.example .env
-                echo "📝 Please update .env file with production values manually!"
-                echo "❌ Deployment incomplete - .env needs configuration"
-                exit 1
-              else
-                echo "❌ ERROR: Neither .env nor .env.example found!"
-                exit 1
-              fi
-            fi
+            # Put application in maintenance mode to prevent 500 errors during cache rebuilds
+            echo "🚧 Putting application in maintenance mode..."
+            php artisan down || true
             
-            echo "✅ .env file exists"
+            # Check if .env exists
+            if [ ! -f .env ]; then
+              echo "⚠️  .env file not found! Please check server manually to ensure it wasn't lost."
+            else
+              echo "✅ .env file exists and was preserved correctly!"
+            fi
             
             # Ensure storage directories exist with correct structure
             mkdir -p storage/framework/sessions
@@ -153,6 +149,10 @@ jobs:
             php artisan config:cache
             php artisan route:cache
             php artisan view:cache
+            
+            # Bring application out of maintenance mode
+            echo "🚀 Bringing application out of maintenance mode..."
+            php artisan up || true
             
             # Verify deployment
             echo "✅ Deployment completed successfully!"
