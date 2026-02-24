@@ -57,10 +57,12 @@ class AuthController extends Controller
             if ($user->isStudent()) {
                 $user->coinBalance()->create(['total_balance' => 0]);
 
-                // Trigger welcome email
-                $this->emailService->sendTemplateMail('student-registered', $user->email, [
-                    'user_name' => $user->name,
-                ]);
+                // Trigger welcome email via Hostinger SMTP
+                try {
+                    Mail::to($user->email)->queue(new StudentRegisteredMail($user));
+                } catch (\Exception $mailError) {
+                    \Illuminate\Support\Facades\Log::warning('Failed to send registration email: ' . $mailError->getMessage());
+                }
             }
 
             $token = $user->createToken('auth-token')->plainTextToken;

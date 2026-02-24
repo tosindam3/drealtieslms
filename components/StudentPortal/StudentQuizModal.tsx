@@ -132,22 +132,24 @@ export const StudentQuizModal: React.FC<StudentQuizModalProps> = ({
                 const passed = percentage >= (quizData.passScore || 70);
                 const coinsAwarded = passed ? (block.coinReward || 10) : 0;
 
-                // Save completion to backend
+                // Save completion to backend (only if lessonId is defined)
                 try {
-                    await apiClient.post(`/api/lessons/${block.lessonId}/blocks/${block.id}/complete`, {
-                        block_type: 'quiz',
-                        score_percentage: percentage,
-                        score_points: score,
-                        total_points: totalPoints,
-                        passed: passed,
-                        coins_awarded: coinsAwarded,
-                        completion_data: {
-                            answers: answers,
-                            questions: questions.length,
-                            pass_score: quizData.passScore || 70,
-                            timestamp: new Date().toISOString()
-                        }
-                    });
+                    if (block.lessonId) {
+                        await apiClient.post(`/api/lessons/${block.lessonId}/blocks/${block.id}/complete`, {
+                            block_type: 'quiz',
+                            score_percentage: percentage,
+                            score_points: score,
+                            total_points: totalPoints,
+                            passed: passed,
+                            coins_awarded: coinsAwarded,
+                            completion_data: {
+                                answers: answers,
+                                questions: questions.length,
+                                pass_score: quizData.passScore || 70,
+                                timestamp: new Date().toISOString()
+                            }
+                        });
+                    }
                 } catch (saveError) {
                     console.error('Failed to save quiz completion:', saveError);
                     // Continue anyway - we'll still show results

@@ -38,6 +38,7 @@ export const CohortSettingsPage: React.FC<CohortSettingsPageProps> = ({ cohortId
   const { addToast } = useToast();
   const [activeTab, setActiveTab] = useState<'identity' | 'enrollment' | 'faculty' | 'sync' | 'emails'>('identity');
   const [isLoading, setIsLoading] = useState(true);
+  const [isSaving, setIsSaving] = useState(false);
   const [enrolledStudents, setEnrolledStudents] = useState<any[]>([]);
   const [unenrolledStudents, setUnenrolledStudents] = useState<any[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
@@ -128,7 +129,7 @@ export const CohortSettingsPage: React.FC<CohortSettingsPageProps> = ({ cohortId
   const handleDeleteCohort = async () => {
     if (!confirm("CRITICAL ACTION: Are you sure you want to permanently delete this cohort? This cannot be undone and all student progress data will be destroyed.")) return;
 
-    setIsLoading(true);
+    setIsSaving(true);
     try {
       await apiClient.delete(`/api/admin/cohorts/${cohortId}`);
       addToast({
@@ -145,7 +146,7 @@ export const CohortSettingsPage: React.FC<CohortSettingsPageProps> = ({ cohortId
         type: 'error'
       });
     } finally {
-      setIsLoading(false);
+      setIsSaving(false);
     }
   };
 
@@ -197,7 +198,7 @@ export const CohortSettingsPage: React.FC<CohortSettingsPageProps> = ({ cohortId
   };
 
   const handleSave = async () => {
-    setIsLoading(true);
+    setIsSaving(true);
     try {
       // Structure data for backend settings JSON
       const payload = {
@@ -228,7 +229,7 @@ export const CohortSettingsPage: React.FC<CohortSettingsPageProps> = ({ cohortId
         type: 'error'
       });
     } finally {
-      setIsLoading(false);
+      setIsSaving(false);
     }
   };
 
@@ -655,8 +656,10 @@ export const CohortSettingsPage: React.FC<CohortSettingsPageProps> = ({ cohortId
           </div>
           <button
             onClick={handleSave}
-            className="px-6 py-2 bg-[#D4AF37] text-black rounded-xl font-black text-[9px] uppercase tracking-[0.2em] shadow-2xl hover:bg-[#B8962E] transition-all"
+            disabled={isSaving}
+            className="px-6 py-2 bg-[#D4AF37] text-black rounded-xl font-black text-[9px] uppercase tracking-[0.2em] shadow-2xl hover:bg-[#B8962E] transition-all disabled:opacity-50 flex items-center gap-2"
           >
+            {isSaving ? <div className="w-3 h-3 border-2 border-black border-t-transparent rounded-full animate-spin" /> : null}
             Save Changes
           </button>
         </footer>
