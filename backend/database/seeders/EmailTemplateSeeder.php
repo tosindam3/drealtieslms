@@ -2,8 +2,8 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use App\Models\EmailTemplate;
 
 class EmailTemplateSeeder extends Seeder
 {
@@ -15,80 +15,145 @@ class EmailTemplateSeeder extends Seeder
         $templates = [
             [
                 'slug' => 'student-registered',
-                'name' => 'Registration Welcome Email',
-                'subject' => 'Welcome to DrealtiesFX Academy!',
-                'body' => '<p>Hello {{user_name}},</p><p>Welcome to DrealtiesFX Academy! We are excited to have you on board.</p><p>You can now access your dashboard and start your learning journey.</p><p>Best regards,<br>The DrealtiesFX Team</p>',
+                'name' => 'Student Registration Welcome',
+                'subject' => 'Welcome to {{app_name}}! 🎉',
+                'body' => '
+                    <h2>Welcome, {{user_name}}!</h2>
+                    <p>Your account has been successfully created on <strong>{{app_name}}</strong>.</p>
+                    <p>You can now log in and start exploring your courses.</p>
+                    <p>We are excited to have you on board!</p>
+                ',
+                'settings' => [
+                    'show_button' => true,
+                    'button_label' => 'Login to Your Account',
+                    'button_url' => config('app.url') . '/login',
+                    'header_color' => '#0d1117',
+                    'button_color' => '#D4AF37',
+                    'button_text_color' => '#000000',
+                ],
                 'placeholders' => ['user_name', 'app_name']
-            ],
-            [
-                'slug' => 'password-changed',
-                'name' => 'Password Change Notification',
-                'subject' => 'Your password has been changed',
-                'body' => '<p>Hello {{user_name}},</p><p>This is to confirm that your password for DrealtiesFX Academy has been successfully changed.</p><p>If you did not perform this action, please contact support immediately.</p>',
-                'placeholders' => ['user_name']
             ],
             [
                 'slug' => 'payment-confirmed',
                 'name' => 'Payment Confirmation',
-                'subject' => 'Payment Confirmed - {{plan_name}}',
-                'body' => '<p>Hello {{user_name}},</p><p>Your payment of <strong>{{amount}} {{currency}}</strong> has been confirmed.</p><p>Reference: {{reference}}</p><p>Your access to {{plan_name}} is now active.</p>',
+                'subject' => 'Payment Confirmed - {{app_name}}',
+                'body' => '
+                    <h2>Payment Received! ✅</h2>
+                    <p>Hi {{user_name}},</p>
+                    <p>We have successfully received your payment of <strong>{{currency}} {{amount}}</strong> for <strong>{{plan_name}}</strong>.</p>
+                    <p>Transaction Reference: <code>{{reference}}</code></p>
+                    <p>Your access has been activated.</p>
+                ',
+                'settings' => [
+                    'show_button' => true,
+                    'button_label' => 'Go to Dashboard',
+                    'button_url' => config('app.url') . '/dashboard',
+                    'header_color' => '#0d1117',
+                    'button_color' => '#D4AF37',
+                ],
                 'placeholders' => ['user_name', 'amount', 'currency', 'reference', 'plan_name']
             ],
             [
-                'slug' => 'module-concluded',
-                'name' => 'Module Completion Notification',
-                'subject' => 'Congratulations on completing {{module_name}}!',
-                'body' => '<p>Well done {{user_name}}!</p><p>You have successfully completed the <strong>{{module_name}}</strong> module.</p><p>Keep up the great work!</p>',
-                'placeholders' => ['user_name', 'module_name']
-            ],
-            [
-                'slug' => 'password-reset-link',
-                'name' => 'Password Reset Link',
-                'subject' => 'Reset your DrealtiesFX Academy password',
-                'body' => '<p>Hello,</p><p>You are receiving this email because we received a password reset request for your account.</p><p>Click the link below to reset your password:</p><p><a href="{{reset_url}}">Reset Password</a></p><p>This password reset link will expire in 60 minutes.</p><p>If you did not request a password reset, no further action is required.</p>',
-                'placeholders' => ['reset_url']
-            ],
-            [
                 'slug' => 'subscription-started',
-                'name' => 'Subscription Started',
-                'subject' => 'Your subscription is now active!',
-                'body' => '<p>Hello {{user_name}},</p><p>Your <strong>{{plan_name}}</strong> subscription has been successfully activated.</p><p>It will remain active until {{ends_at}}.</p>',
+                'name' => 'Subscription Activated',
+                'subject' => 'Your Subscription is Now Active! 🚀',
+                'body' => '
+                    <h2>Subscription Active!</h2>
+                    <p>Hi {{user_name}},</p>
+                    <p>Your <strong>{{plan_name}}</strong> subscription has been successfully activated.</p>
+                    <p>It will remain active until <strong>{{ends_at}}</strong>.</p>
+                    <p>Enjoy full access to all premium features!</p>
+                ',
+                'settings' => [
+                    'show_button' => true,
+                    'button_label' => 'Explore Courses',
+                    'button_url' => config('app.url') . '/courses',
+                    'header_color' => '#0d1117',
+                    'button_color' => '#D4AF37',
+                ],
                 'placeholders' => ['user_name', 'plan_name', 'ends_at']
             ],
             [
                 'slug' => 'enrollment-confirmed',
-                'name' => 'Enrollment Confirmed',
-                'subject' => 'Enrollment Confirmed: {{cohort_name}}',
-                'body' => '<p>Hello {{user_name}},</p><p>You have been successfully enrolled in the <strong>{{cohort_name}}</strong> cohort.</p><p>We look forward to seeing your progress!</p>',
+                'name' => 'Course Enrollment Confirmation',
+                'subject' => 'Enrolled Successfully: {{cohort_name}}',
+                'body' => '
+                    <h2>Enrollment Confirmed! 📚</h2>
+                    <p>Hi {{user_name}},</p>
+                    <p>You have been successfully enrolled in <strong>{{cohort_name}}</strong>.</p>
+                    <p>You can now access all the course materials and join the community discussions.</p>
+                ',
+                'settings' => [
+                    'show_button' => true,
+                    'button_label' => 'Go to Course',
+                    'button_url' => config('app.url') . '/learn',
+                    'header_color' => '#0d1117',
+                    'button_color' => '#D4AF37',
+                ],
                 'placeholders' => ['user_name', 'cohort_name']
             ],
             [
-                'slug' => 'new-update',
-                'name' => 'New Update/Announcement',
-                'subject' => 'New Update from DrealtiesFX Academy',
-                'body' => '<p>Hello {{user_name}},</p><p>We have a new update for you:</p><div>{{update_content}}</div>',
-                'placeholders' => ['user_name', 'update_content']
+                'slug' => 'password-reset-link',
+                'name' => 'Password Reset Link',
+                'subject' => 'Reset Your Password - {{app_name}}',
+                'body' => '
+                    <h2>Reset Your Password</h2>
+                    <p>You are receiving this email because we received a password reset request for your account.</p>
+                    <p>Click the button below to reset your password. This link will expire in 60 minutes.</p>
+                    <p>If you did not request a password reset, no further action is required.</p>
+                ',
+                'settings' => [
+                    'show_button' => true,
+                    'button_label' => 'Reset Password',
+                    'button_url' => '{{reset_url}}',
+                    'header_color' => '#0d1117',
+                    'button_color' => '#D4AF37',
+                ],
+                'placeholders' => ['reset_url', 'app_name']
             ],
             [
-                'slug' => 'cohort-concluded',
-                'name' => 'Cohort Completion Notification',
-                'subject' => 'Congratulations on finishing your Cohort!',
-                'body' => '<p>Hello {{user_name}},</p><p>Congratulations on completing the <strong>{{cohort_name}}</strong> cohort! We are proud of your progress.</p>',
-                'placeholders' => ['user_name', 'cohort_name']
+                'slug' => 'password-changed',
+                'name' => 'Password Changed Notification',
+                'subject' => 'Security Alert: Password Changed',
+                'body' => '
+                    <h2>Password Updated Successfully</h2>
+                    <p>Hi {{user_name}},</p>
+                    <p>This is a confirmation that your password for <strong>{{app_name}}</strong> has been successfully changed.</p>
+                    <p>If you did not perform this action, please contact our support team immediately.</p>
+                ',
+                'settings' => [
+                    'show_button' => false,
+                    'header_color' => '#0d1117',
+                ],
+                'placeholders' => ['user_name', 'app_name']
             ],
             [
-                'slug' => 'new-update',
-                'name' => 'General Academy Update',
-                'subject' => 'New Update from DrealtiesFX Academy',
-                'body' => '<p>Hello {{user_name}},</p><p>We have a new update for you: {{update_content}}</p>',
-                'placeholders' => ['user_name', 'update_content']
-            ]
+                'slug' => 'new_update',
+                'name' => 'General Updates Broadcast',
+                'subject' => 'New Update from {{app_name}} 📢',
+                'body' => '
+                    <h2>Hello {{user_name}}!</h2>
+                    <p>{{update_content}}</p>
+                    <p>Stay tuned for more exciting news!</p>
+                ',
+                'settings' => [
+                    'show_button' => false,
+                    'header_color' => '#0d1117',
+                ],
+                'placeholders' => ['user_name', 'update_content', 'app_name']
+            ],
         ];
 
         foreach ($templates as $template) {
-            \App\Models\EmailTemplate::updateOrCreate(
+            EmailTemplate::updateOrCreate(
                 ['slug' => $template['slug']],
-                $template
+                [
+                    'name' => $template['name'],
+                    'subject' => $template['subject'],
+                    'body' => $template['body'],
+                    'settings' => $template['settings'],
+                    'placeholders' => $template['placeholders'],
+                ]
             );
         }
     }

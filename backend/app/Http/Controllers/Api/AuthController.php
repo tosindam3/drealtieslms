@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\StudentRegisteredMail;
+use App\Events\StudentRegisteredEvent;
 use App\Services\Mail\EmailTemplateService;
 use Illuminate\Validation\ValidationException;
 use Laravel\Sanctum\PersonalAccessToken;
@@ -59,9 +60,9 @@ class AuthController extends Controller
 
                 // Trigger welcome email via Hostinger SMTP
                 try {
-                    Mail::to($user->email)->queue(new StudentRegisteredMail($user));
+                    event(new StudentRegisteredEvent($user));
                 } catch (\Exception $mailError) {
-                    \Illuminate\Support\Facades\Log::warning('Failed to send registration email: ' . $mailError->getMessage());
+                    \Illuminate\Support\Facades\Log::warning('Failed to dispatch registration event: ' . $mailError->getMessage());
                 }
             }
 
@@ -117,6 +118,7 @@ class AuthController extends Controller
             ], 401);
         }
 
+        /** @var User $user */
         $user = Auth::user();
 
         // Update last active timestamp
@@ -170,6 +172,7 @@ class AuthController extends Controller
      */
     public function user(Request $request): JsonResponse
     {
+        /** @var User $user */
         $user = $request->user();
         $user->load(['coinBalance', 'enrollments']);
 
@@ -204,6 +207,7 @@ class AuthController extends Controller
     public function refresh(Request $request): JsonResponse
     {
         try {
+            /** @var User $user */
             $user = $request->user();
 
             // Revoke current token

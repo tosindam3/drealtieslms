@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 use App\Mail\PasswordResetMail;
+use App\Events\PasswordChangedEvent;
 use App\Services\Mail\EmailTemplateService;
 
 class PasswordResetController extends Controller
@@ -140,9 +141,7 @@ class PasswordResetController extends Controller
         DB::table('password_reset_tokens')->where('email', $request->email)->delete();
 
         // Send confirmation email
-        $this->emailService->sendTemplateMail('password-changed', $user->email, [
-            'user_name' => $user->name,
-        ]);
+        event(new PasswordChangedEvent($user));
 
         return response()->json([
             'message' => 'Password has been reset successfully.',

@@ -16,6 +16,7 @@ use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Validator;
 use App\Exceptions\EnrollmentException;
+use App\Events\CourseEnrolledEvent;
 
 class CohortController extends Controller
 {
@@ -494,6 +495,9 @@ class CohortController extends Controller
 
         try {
             $enrollment = $this->cohortService->enrollStudent($user, $cohort);
+
+            // Fire enrollment event
+            event(new CourseEnrolledEvent($user, $cohort));
 
             return response()->json([
                 'message' => 'Successfully enrolled in cohort',

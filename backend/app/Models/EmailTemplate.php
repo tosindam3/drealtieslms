@@ -19,4 +19,9 @@ class EmailTemplate extends Model
         'placeholders' => 'array',
         'settings' => 'array'
     ];
+
+    public function getRouteKeyName()
+    {
+        return 'slug';
+    }
 }

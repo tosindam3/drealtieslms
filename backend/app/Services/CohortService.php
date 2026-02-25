@@ -246,7 +246,7 @@ class CohortService
             throw new EnrollmentException('Student is not enrolled in this cohort');
         }
 
-        DB::transaction(function () use ($enrollment, $cohort, $reason) {
+        DB::transaction(function () use ($enrollment, $cohort, $student, $reason) {
             $enrollment->update([
                 'status' => Enrollment::STATUS_DROPPED, // Use 'dropped' instead of 'withdrawn'
                 // Note: withdrawn_at and withdrawal_reason columns don't exist in current schema
@@ -327,7 +327,7 @@ class CohortService
     /**
      * Get students enrolled in cohort
      */
-    public function getCohortStudents(Cohort $cohort, string $status = null): \Illuminate\Database\Eloquent\Collection
+    public function getCohortStudents(Cohort $cohort, ?string $status = null): \Illuminate\Database\Eloquent\Collection
     {
         $query = Enrollment::where('cohort_id', $cohort->id)
             ->with(['user', 'progress']);

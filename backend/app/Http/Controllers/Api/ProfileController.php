@@ -11,6 +11,8 @@ use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
+use App\Events\PasswordChangedEvent;
+use Illuminate\Support\Facades\Hash;
 
 class ProfileController extends Controller
 {
@@ -111,6 +113,39 @@ class ProfileController extends Controller
             'user' => [
                 'name' => $user->name,
             ],
+            'timestamp' => now()->toISOString()
+        ]);
+    }
+
+    /**
+     * Change user password
+     */
+    public function changePassword(Request $request): JsonResponse
+    {
+        $request->validate([
+            'current_password' => 'required|string',
+            'password' => 'required|string|min:8|confirmed',
+        ]);
+
+        $user = $request->user();
+
+        if (!Hash::check($request->current_password, $user->password)) {
+            return response()->json([
+                'error' => 'invalid_password',
+                'message' => 'The provided current password does not match our records.',
+                'timestamp' => now()->toISOString()
+            ], 422);
+        }
+
+        $user->update([
+            'password' => Hash::make($request->password)
+        ]);
+
+        // Fire password changed event
+        event(new PasswordChangedEvent($user));
+
+        return response()->json([
+            'message' => 'Password updated successfully',
             'timestamp' => now()->toISOString()
         ]);
     }

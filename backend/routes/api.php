@@ -167,8 +167,10 @@ Route::middleware('auth:sanctum')->group(function () {
 
         // Email Templates
         Route::get('/email-templates', [\App\Http\Controllers\Api\Admin\EmailTemplateController::class, 'index']);
+        Route::post('/email-templates', [\App\Http\Controllers\Api\Admin\EmailTemplateController::class, 'store']);
         Route::get('/email-templates/{emailTemplate}', [\App\Http\Controllers\Api\Admin\EmailTemplateController::class, 'show']);
         Route::match(['PUT', 'PATCH'], '/email-templates/{emailTemplate}', [\App\Http\Controllers\Api\Admin\EmailTemplateController::class, 'update']);
+        Route::delete('/email-templates/{emailTemplate}', [\App\Http\Controllers\Api\Admin\EmailTemplateController::class, 'destroy']);
         Route::post('/email-templates/{emailTemplate}/test', [\App\Http\Controllers\Api\Admin\EmailTemplateController::class, 'test']);
         Route::post('/email-templates/broadcast', [\App\Http\Controllers\Api\Admin\EmailTemplateController::class, 'broadcast']);
     });

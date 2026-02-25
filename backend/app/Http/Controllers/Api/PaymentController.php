@@ -11,6 +11,9 @@ use App\Models\Cohort;
 use App\Mail\PaymentReceivedMail;
 use App\Mail\SubscriptionStartedMail;
 use App\Mail\EnrollmentConfirmedMail;
+use App\Events\PaymentConfirmedEvent;
+use App\Events\SubscriptionStartedEvent;
+use App\Events\CourseEnrolledEvent;
 use App\Services\Mail\EmailTemplateService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
@@ -53,14 +56,8 @@ class PaymentController extends Controller
                 ]
             ]);
 
-            // 1. Send Payment Received Mail
-            $this->emailService->sendTemplateMail('payment-confirmed', $user->email, [
-                'user_name' => $user->name,
-                'amount' => $payment->amount,
-                'currency' => $payment->currency,
-                'reference' => $payment->reference,
-                'plan_name' => $planName,
-            ]);
+            // 1. Fire Payment Received Event
+            event(new PaymentConfirmedEvent($user, $payment));
 
             // 2. Create/Update Subscription
             $subscription = Subscription::updateOrCreate(
@@ -73,11 +70,7 @@ class PaymentController extends Controller
                 ]
             );
 
-            $this->emailService->sendTemplateMail('subscription-started', $user->email, [
-                'user_name' => $user->name,
-                'plan_name' => $subscription->plan_name,
-                'ends_at' => $subscription->ends_at->toDateString(),
-            ]);
+            event(new SubscriptionStartedEvent($user, $subscription));
 
             // 3. Handle Enrollment if cohort_id is provided
             if ($cohortId) {
@@ -92,10 +85,7 @@ class PaymentController extends Controller
                         ]
                     );
 
-                    $this->emailService->sendTemplateMail('enrollment-confirmed', $user->email, [
-                        'user_name' => $user->name,
-                        'cohort_name' => $cohort->name,
-                    ]);
+                    event(new CourseEnrolledEvent($user, $cohort));
                 }
             }
 

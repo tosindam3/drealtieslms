@@ -42,14 +42,40 @@ class EmailTemplateController extends Controller
     }
 
     /**
+     * Store a newly created email template in storage.
+     */
+    public function store(Request $request): JsonResponse
+    {
+        $validated = $request->validate([
+            'slug' => 'required|string|unique:email_templates,slug|max:255',
+            'name' => 'required|string|max:255',
+            'subject' => 'required|string|max:255',
+            'body' => 'required|string',
+            'placeholders' => 'sometimes|array',
+            'settings' => 'sometimes|array',
+        ]);
+
+        $template = EmailTemplate::create($validated);
+
+        return response()->json([
+            'message' => 'Email template created successfully',
+            'template' => $template,
+            'timestamp' => now()->toISOString()
+        ], 201);
+    }
+
+    /**
      * Update the specified email template in storage.
      */
     public function update(Request $request, EmailTemplate $emailTemplate): JsonResponse
     {
         $validated = $request->validate([
+            'slug' => 'sometimes|string|unique:email_templates,slug,' . $emailTemplate->id . '|max:255',
             'name' => 'sometimes|string|max:255',
             'subject' => 'sometimes|string|max:255',
             'body' => 'sometimes|string',
+            'placeholders' => 'sometimes|array',
+            'settings' => 'sometimes|array',
         ]);
 
         $emailTemplate->update($validated);
@@ -57,6 +83,19 @@ class EmailTemplateController extends Controller
         return response()->json([
             'message' => 'Email template updated successfully',
             'template' => $emailTemplate,
+            'timestamp' => now()->toISOString()
+        ]);
+    }
+
+    /**
+     * Remove the specified email template from storage.
+     */
+    public function destroy(EmailTemplate $emailTemplate): JsonResponse
+    {
+        $emailTemplate->delete();
+
+        return response()->json([
+            'message' => 'Email template deleted successfully',
             'timestamp' => now()->toISOString()
         ]);
     }

@@ -101,15 +101,16 @@ jobs:
 
       - name: Deploy to Hostinger via SSH/Rsync
         uses: easingthemes/ssh-deploy@main
-        env:
+        with:
           SSH_PRIVATE_KEY: ${{ secrets.HOSTINGER_SSH_PRIVATE_KEY }}
-          ARGS: "-rlgoDzvc -i"
-          EXCLUDE: "backend/.env, backend/storage/, backend/bootstrap/cache/, public_html/storage/"
-          SOURCE: "./"
           REMOTE_HOST: ${{ secrets.HOSTINGER_SSH_HOST }}
           REMOTE_USER: ${{ secrets.HOSTINGER_SSH_USERNAME }}
           REMOTE_PORT: ${{ secrets.HOSTINGER_SSH_PORT }}
           TARGET: "domains/drealtiesfx.com/"
+          ARGS: "-rlgoDzvc -i"
+          EXCLUDE: "backend/.env, backend/storage/, backend/bootstrap/cache/, public_html/storage/"
+          SOURCE: "./"
+        env:
           SCRIPT_AFTER: |
             echo "🚀 Running post-deployment commands on Hostinger..."
             cd ~/domains/drealtiesfx.com/backend
