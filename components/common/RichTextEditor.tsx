@@ -227,6 +227,14 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({ content, onChang
         extensions: [
             StarterKit.configure({
                 history: true,
+                bulletList: {
+                    keepMarks: true,
+                    keepAttributes: false,
+                },
+                orderedList: {
+                    keepMarks: true,
+                    keepAttributes: false,
+                },
             }),
             TextStyle,
             Color,
@@ -273,9 +281,9 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({ content, onChang
     }, [content, editor]);
 
     return (
-        <div className="w-full bg-[#0a0a0b] border border-slate-800 rounded-2xl shadow-inner focus-within:border-[#D4AF37]/40 transition-all overflow-hidden flex flex-col">
+        <div className="w-full bg-[#0a0a0b] border border-slate-800 rounded-2xl shadow-inner focus-within:border-[#D4AF37]/40 transition-all overflow-hidden flex flex-col min-h-[400px]">
             <MenuBar editor={editor} />
-            <div className="flex-1 overflow-y-auto max-h-[500px]">
+            <div className="flex-1 overflow-y-auto custom-scrollbar bg-black/40">
                 <EditorContent editor={editor} />
             </div>
         </div>
