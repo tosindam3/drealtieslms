@@ -92,6 +92,32 @@ export const LandingPage: React.FC<{
     return () => observer.disconnect();
   }, []);
 
+  // Tawk.to Chat Widget
+  useEffect(() => {
+    // Load Tawk.to script
+    const script = document.createElement('script');
+    script.async = true;
+    script.src = 'https://embed.tawk.to/697ce9f1dba1a41c36d9d26e/1jg7v3lu0';
+    script.charset = 'UTF-8';
+    script.setAttribute('crossorigin', '*');
+    
+    const firstScript = document.getElementsByTagName('script')[0];
+    if (firstScript && firstScript.parentNode) {
+      firstScript.parentNode.insertBefore(script, firstScript);
+    }
+
+    // Initialize Tawk API
+    (window as any).Tawk_API = (window as any).Tawk_API || {};
+    (window as any).Tawk_LoadStart = new Date();
+
+    return () => {
+      // Cleanup: remove script when component unmounts
+      if (script.parentNode) {
+        script.parentNode.removeChild(script);
+      }
+    };
+  }, []);
+
 
   const faqs = [
     { q: "Is this suitable for absolute beginners?", a: "Yes. Our 8-week cohort starts with the absolute fundamentals of market structure before moving into advanced institutional order flow." },
@@ -256,7 +282,28 @@ export const LandingPage: React.FC<{
         .animate-slow-rotate { animation: slowRotate 30s linear infinite; }
         .animate-pulse-glow { animation: pulseGlow 6s ease-in-out infinite; }
         .animate-shimmer-flare { animation: shimmerFlare 3s ease-in-out infinite; }
-        
+
+        @keyframes heroBgSlow {
+          0%, 100% { transform: translate(-50%, -50%) scale(1) rotate(-1deg); }
+          50% { transform: translate(-49%, -51%) scale(1.05) rotate(1deg); }
+        }
+        @keyframes heroBgMain {
+          0%, 100% { transform: translateY(0) scale(1) rotate(0deg); }
+          50% { transform: translateY(-30px) scale(1.02) rotate(1deg); }
+        }
+        @keyframes heroBgFast {
+          0%, 100% { transform: translateY(10px) scale(1.1) rotate(1deg); }
+          50% { transform: translateY(-40px) scale(1.15) rotate(-1deg); }
+        }
+        .animate-hero-bg-slow { animation: heroBgSlow 25s ease-in-out infinite; }
+        .animate-hero-bg { animation: heroBgMain 15s ease-in-out infinite; }
+        .animate-hero-bg-fast { animation: heroBgFast 10s ease-in-out infinite; }
+        @keyframes heroRoll {
+          from { transform: rotate(0deg) scale(1.15); }
+          to { transform: rotate(360deg) scale(1.15); }
+        }
+        .animate-hero-roll { animation: heroRoll 80s linear infinite; }
+
         .animate-gradient-gold {
           background: linear-gradient(
             to right, 
@@ -297,6 +344,215 @@ export const LandingPage: React.FC<{
           transform: translateY(-2px);
           box-shadow: 0 10px 40px rgba(212, 175, 55, 0.5);
         }
+
+        /* Hemisphere glow pulse */
+        @keyframes glowRingPulse {
+          0%, 100% { 
+            box-shadow: 0 0 60px 20px rgba(212,175,55,0.15), 0 0 120px 60px rgba(212,175,55,0.08), inset 0 0 60px 20px rgba(212,175,55,0.05);
+            border-color: rgba(212,175,55,0.3);
+          }
+          50% { 
+            box-shadow: 0 0 100px 40px rgba(212,175,55,0.3), 0 0 200px 100px rgba(212,175,55,0.12), inset 0 0 80px 30px rgba(212,175,55,0.08);
+            border-color: rgba(212,175,55,0.6);
+          }
+        }
+        @keyframes glowAuraSweep {
+          0% { transform: translate(-50%, -50%) rotate(0deg); opacity: 0.4; }
+          50% { opacity: 0.8; }
+          100% { transform: translate(-50%, -50%) rotate(360deg); opacity: 0.4; }
+        }
+        .animate-glow-ring { animation: glowRingPulse 4s ease-in-out infinite; }
+        .animate-aura-sweep { animation: glowAuraSweep 8s linear infinite; }
+
+        /* Floating card animations */
+        @keyframes floatCard1 {
+          0%, 100% { transform: translate(0, 0) rotate(-2deg); }
+          25% { transform: translate(10px, -18px) rotate(1deg); }
+          50% { transform: translate(-5px, -30px) rotate(-1deg); }
+          75% { transform: translate(8px, -12px) rotate(2deg); }
+        }
+        @keyframes floatCard2 {
+          0%, 100% { transform: translate(0, 0) rotate(1deg); }
+          25% { transform: translate(-12px, -22px) rotate(-2deg); }
+          50% { transform: translate(8px, -15px) rotate(1deg); }
+          75% { transform: translate(-6px, -28px) rotate(-1deg); }
+        }
+        @keyframes floatCard3 {
+          0%, 100% { transform: translate(0, 0) rotate(0deg); }
+          33% { transform: translate(15px, -20px) rotate(2deg); }
+          66% { transform: translate(-10px, -10px) rotate(-2deg); }
+        }
+        @keyframes floatCard4 {
+          0%, 100% { transform: translate(0, 0) rotate(1deg); }
+          30% { transform: translate(-8px, -25px) rotate(-1deg); }
+          60% { transform: translate(12px, -8px) rotate(2deg); }
+        }
+        @keyframes floatCard5 {
+          0%, 100% { transform: translate(0, 0) rotate(-1deg); }
+          40% { transform: translate(6px, -20px) rotate(1deg); }
+          70% { transform: translate(-10px, -12px) rotate(-2deg); }
+        }
+        @keyframes floatCard6 {
+          0%, 100% { transform: translate(0, 0) rotate(2deg); }
+          35% { transform: translate(-14px, -16px) rotate(-1deg); }
+          65% { transform: translate(10px, -24px) rotate(1deg); }
+        }
+        .animate-float-1 { animation: floatCard1 8s ease-in-out infinite; }
+        .animate-float-2 { animation: floatCard2 9s ease-in-out infinite; }
+        .animate-float-3 { animation: floatCard3 7s ease-in-out infinite; }
+        .animate-float-4 { animation: floatCard4 10s ease-in-out infinite; }
+        .animate-float-5 { animation: floatCard5 8.5s ease-in-out infinite; }
+        .animate-float-6 { animation: floatCard6 9.5s ease-in-out infinite; }
+
+        @keyframes candleGrow {
+          0%, 100% { transform: scaleY(1); }
+          50% { transform: scaleY(1.3); }
+        }
+        .animate-candle { animation: candleGrow 3s ease-in-out infinite; }
+
+        /* Candlestick reveal animation - left to right */
+        @keyframes candleReveal {
+          from {
+            clip-path: inset(0 100% 0 0);
+            opacity: 0;
+          }
+          to {
+            clip-path: inset(0 0 0 0);
+            opacity: 1;
+          }
+        }
+        .animate-candle-reveal {
+          animation: candleReveal 3s ease-out forwards;
+        }
+
+        /* Globe brightness pulse - no drop shadow */
+        @keyframes globeBrightness {
+          0%, 100% {
+            filter: brightness(1);
+          }
+          50% {
+            filter: brightness(1.15);
+          }
+        }
+        .animate-globe-brightness {
+          animation: globeBrightness 4s ease-in-out infinite;
+        }
+
+        /* Glow orbs animation */
+        @keyframes glowOrb {
+          0%, 100% {
+            opacity: 0.3;
+            transform: scale(1);
+          }
+          50% {
+            opacity: 0.6;
+            transform: scale(1.2);
+          }
+        }
+        .animate-glow-orb {
+          animation: glowOrb 3s ease-in-out infinite;
+        }
+
+        /* Globe floor glow illumination */
+        @keyframes floorGlow {
+          0%, 100% { 
+            opacity: 0.4;
+            transform: translateY(0) scale(1);
+          }
+          50% { 
+            opacity: 0.7;
+            transform: translateY(-20px) scale(1.05);
+          }
+        }
+        .animate-floor-glow { animation: floorGlow 6s ease-in-out infinite; }
+
+        /* Radial glow pulse */
+        @keyframes radialGlow {
+          0%, 100% { 
+            opacity: 0.3;
+            filter: blur(60px);
+          }
+          50% { 
+            opacity: 0.6;
+            filter: blur(80px);
+          }
+        }
+        .animate-radial-glow { animation: radialGlow 5s ease-in-out infinite; }
+
+        /* Carousel animations */
+        @keyframes carouselSlide {
+          0% { opacity: 0; transform: scale(1.08); }
+          8% { opacity: 1; transform: scale(1); }
+          25% { opacity: 1; transform: scale(1); }
+          33% { opacity: 0; transform: scale(0.96); }
+          100% { opacity: 0; transform: scale(0.96); }
+        }
+        .carousel-item-1 { 
+          animation: carouselSlide 24s ease-in-out infinite;
+        }
+        .carousel-item-2 { 
+          animation: carouselSlide 24s ease-in-out infinite 8s;
+        }
+        .carousel-item-3 { 
+          animation: carouselSlide 24s ease-in-out infinite 16s;
+        }
+
+        /* Typing animation */
+        @keyframes typing {
+          0% { width: 0; }
+          30% { width: 100%; }
+          50% { width: 100%; }
+          80% { width: 0; }
+          100% { width: 0; }
+        }
+        @keyframes blink {
+          0%, 100% { border-color: transparent; }
+          50% { border-color: #D4AF37; }
+        }
+        .animate-typing {
+          overflow: hidden;
+          border-right: 3px solid #D4AF37;
+          white-space: nowrap;
+          animation: typing 8s steps(20, end) infinite, blink 0.75s step-end infinite;
+          display: inline-block;
+        }
+        @keyframes slideIn {
+          from {
+            opacity: 0;
+            transform: translateX(-30px);
+          }
+          to {
+            opacity: 1;
+            transform: translateX(0);
+          }
+        }
+        .animate-slide-in {
+          animation: slideIn 1s ease-out forwards;
+          animation-delay: 2.5s;
+          opacity: 0;
+        }
+        @keyframes zoomIn {
+          from {
+            opacity: 0;
+            transform: scale(0.8);
+          }
+          to {
+            opacity: 1;
+            transform: scale(1);
+          }
+        }
+        .animate-zoom-in-desc {
+          animation: zoomIn 1s ease-out forwards;
+          animation-delay: 3.5s;
+          opacity: 0;
+        }
+
+        /* Floating forex cards - subtle movements */
+        @keyframes floatForexCard1 {
+          0%, 100% { transform: translateY(0px) rotate(-2deg); opacity: 0.7; }
+          50% { transform: translateY(-15px) rotate(1deg); opacity: 0.9; }
+        }
+        @keyf
       `}</style>
 
       {/* NAVIGATION */}
@@ -358,64 +614,110 @@ export const LandingPage: React.FC<{
       </nav>
 
       {/* HERO SECTION */}
-      <section id="home" className="relative min-h-screen flex flex-col items-center pt-48 md:pt-64 px-6 text-center overflow-hidden">
-        {/* Raised z-index of content to z-50 to ensure it's above the background overlays */}
+      <section id="home" className="relative min-h-screen flex flex-col items-center justify-start pt-32 md:pt-40 pb-32 px-6 text-center overflow-hidden bg-[#07070A]">
+        
+        {/* Dark overlay to dim the background globe */}
+        <div className="absolute inset-0 bg-gradient-to-b from-[#07070A] via-[#07070A]/60 to-[#07070A] z-[1] pointer-events-none" />
+
         <div
           data-animate
           id="hero-content"
-          className={`max-w-5xl space-y-10 relative z-50 opacity-0 ${visibleSections.has('hero-content') ? 'animate-zoom-in' : ''}`}
+          className={`max-w-4xl space-y-6 relative z-50 opacity-0 ${visibleSections.has('hero-content') ? 'animate-zoom-in' : ''}`}
         >
-          <h1 className="text-4xl md:text-7xl font-thin text-white italic tracking-tight leading-[1.1] uppercase">
-            Master Forex Trading <br className="hidden md:block" />
-            <span className="font-black not-italic text-white">
-              for Self Empowerment, <span className="animate-gradient-gold">Without Guesswork</span>
+          {/* Text with enhanced shadow for better readability */}
+          <h1 className="leading-[1.15] drop-shadow-[0_4px_20px_rgba(0,0,0,0.9)]">
+            <span className="block text-3xl md:text-5xl lg:text-[3.5rem] font-light text-white italic tracking-tight">
+              Master Forex Trading
+            </span>
+            <span className="block text-4xl md:text-6xl lg:text-[4.2rem] font-black text-white tracking-tight mt-1 animate-slide-in">
+              for self empowerment, <span className="inline-block min-w-[280px] md:min-w-[420px] lg:min-w-[520px]">
+                <span className="animate-typing animate-gradient-gold">without Guesswork</span>
+              </span>
             </span>
           </h1>
 
-          <p className="text-sm md:text-base text-slate-500 font-medium leading-relaxed max-w-3xl mx-auto uppercase tracking-[0.2em]">
-            Join a structured, mentor-led, 8-week cohort program designed to take you from foundation to
-            institutional professional through live execution and mathematical precision.
+          <p className="text-[13px] md:text-[15px] text-slate-300 font-normal leading-relaxed max-w-xl mx-auto drop-shadow-[0_2px_10px_rgba(0,0,0,0.8)] animate-zoom-in-desc">
+            Learn Forex Trading without guesswork through our structured 8-week cohort. Got questions? Chat with us anytime via <span className="font-bold text-white">Web Chat</span> or <span className="font-bold text-white">WhatsApp</span> to get started.
           </p>
 
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-6 pt-6">
-            {/* Get Started Button */}
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4">
             <button
               onClick={() => setAuthMode('register')}
-              className="btn-gold-slide w-full sm:w-auto px-12 py-5 bg-[#D4AF37] text-black rounded-full font-black text-[11px] uppercase tracking-[0.25em] shadow-[0_20px_50px_rgba(212,175,55,0.4)] transition-all active:scale-95 cursor-pointer"
+              className="btn-gold-slide w-full sm:w-auto px-10 py-4 bg-[#D4AF37] text-black rounded-full font-bold text-[12px] tracking-wide shadow-[0_15px_40px_rgba(212,175,55,0.35)] transition-all active:scale-95 cursor-pointer"
             >
-              Get Started
+              Create Live Account
             </button>
-            {/* Learn More Button */}
             <a
               href="#about"
-              className="w-full sm:w-auto px-12 py-5 bg-white/10 border border-white/20 text-white rounded-full font-black text-[11px] uppercase tracking-[0.25em] hover:bg-white/20 transition-all active:scale-95 flex items-center justify-center gap-2 cursor-pointer relative z-50"
+              className="w-full sm:w-auto px-10 py-4 bg-white/[0.06] border border-white/15 text-white rounded-full font-bold text-[12px] tracking-wide hover:bg-white/10 transition-all active:scale-95 flex items-center justify-center gap-2 cursor-pointer relative z-50 backdrop-blur-sm"
             >
-              Learn More <ChevronRight className="w-4 h-4" />
+              Learn More
             </a>
           </div>
         </div>
 
-        {/* THE VIEWPOINT ORB / PORTAL - GOLD THEME */}
-        <div className="absolute bottom-[-15%] md:bottom-[-25%] left-1/2 -translate-x-1/2 w-full max-w-[1000px] aspect-square pointer-events-none select-none z-20">
-          <div className="absolute inset-0 bg-black rounded-full shadow-[0_-120px_350px_rgba(212,175,55,0.4),inset_0_20px_150px_rgba(212,175,55,0.2)] overflow-hidden animate-pulse-glow">
-            <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-b from-[#D4AF37]/20 to-transparent blur-[80px]" />
+        {/* ===== BACKGROUND CAROUSEL - 3 rotating images ===== */}
+        <div className="absolute inset-0 w-full h-full pointer-events-none z-[0]">
+          {/* Background Image 1 */}
+          <div className="absolute inset-0 carousel-item-1">
+            <img
+              src="/hero-bg-1.jpg"
+              alt=""
+              aria-hidden="true"
+              className="absolute inset-0 w-full h-full object-cover"
+              onError={(e) => {
+                e.currentTarget.src = 'https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=1920&h=1080&fit=crop';
+              }}
+            />
           </div>
 
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[110%] h-[110%] opacity-40 animate-slow-rotate">
-            {[...Array(36)].map((_, i) => (
-              <div
-                key={i}
-                className="absolute top-1/2 left-1/2 w-[2px] h-1/2 bg-gradient-to-t from-[#D4AF37]/80 via-[#D4AF37]/20 to-transparent origin-bottom"
-                style={{ transform: `translate(-50%, -100%) rotate(${i * 10}deg)` }}
-              />
-            ))}
+          {/* Background Image 2 */}
+          <div className="absolute inset-0 carousel-item-2 opacity-0">
+            <img
+              src="/hero-bg-2.jpg"
+              alt=""
+              aria-hidden="true"
+              className="absolute inset-0 w-full h-full object-cover"
+              onError={(e) => {
+                e.currentTarget.src = 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=1920&h=1080&fit=crop';
+              }}
+            />
           </div>
 
-          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-16 h-16 bg-white rounded-full blur-[10px] shadow-[0_0_60px_#fff,0_0_180px_#D4AF37] opacity-100 animate-shimmer-flare" />
+          {/* Background Image 3 */}
+          <div className="absolute inset-0 carousel-item-3 opacity-0">
+            <img
+              src="/hero-bg-3.jpg"
+              alt=""
+              aria-hidden="true"
+              className="absolute inset-0 w-full h-full object-cover"
+              onError={(e) => {
+                e.currentTarget.src = 'https://images.unsplash.com/photo-1559526324-4b87b5e36e44?w=1920&h=1080&fit=crop';
+              }}
+            />
+          </div>
         </div>
 
-        {/* Decorative Overlay - Added pointer-events-none to prevent blocking button clicks */}
-        <div className="absolute bottom-0 left-0 w-full h-[40vh] bg-gradient-to-t from-[#07070A] to-transparent z-40 pointer-events-none" />
+        {/* ===== GLOBE OVERLAY (optional - on top of carousel) ===== */}
+        <div className="absolute inset-0 w-full h-full pointer-events-none z-[2]">
+          {/* Animated glow orbs */}
+          <div className="absolute bottom-[20%] left-[30%] w-32 h-32 bg-[#D4AF37] rounded-full blur-[80px] animate-glow-orb" style={{ animationDelay: '0s' }} />
+          <div className="absolute bottom-[40%] right-[25%] w-40 h-40 bg-[#D4AF37] rounded-full blur-[100px] animate-glow-orb" style={{ animationDelay: '1s' }} />
+          <div className="absolute bottom-[15%] left-[50%] w-36 h-36 bg-[#FBF2C4] rounded-full blur-[90px] animate-glow-orb" style={{ animationDelay: '2s' }} />
+          
+          {/* Globe image overlay (very faint) */}
+          <img
+            src="/glow_bg.png"
+            alt=""
+            aria-hidden="true"
+            className="absolute inset-0 w-full h-full object-cover opacity-10 animate-globe-brightness"
+          />
+        </div>
+
+
+
+        {/* Bottom fade overlay - stronger gradient */}
+        <div className="absolute bottom-0 left-0 w-full h-[20vh] bg-gradient-to-t from-[#07070A] via-[#07070A]/80 to-transparent z-[20] pointer-events-none" />
       </section>
 
       {/* CORE FEATURES / ABOUT */}
@@ -519,14 +821,14 @@ export const LandingPage: React.FC<{
             className={`flex items-center justify-between mb-12 px-4 text-center md:text-left flex-col md:flex-row items-center gap-6 opacity-0 ${visibleSections.has('calculator-header') ? 'animate-zoom-in' : ''}`}
           >
             <div className="flex flex-col">
-              <div className="flex items-center gap-4 mb-2">
-                <h2 className="text-5xl font-black text-white italic tracking-tighter uppercase">Professional Lot Size Calculator</h2>
-                <div className="px-4 py-1.5 bg-[#D4AF37]/10 border border-[#D4AF37]/20 rounded-full flex items-center gap-2">
+              <div className="flex flex-col sm:flex-row items-center sm:items-center gap-3 sm:gap-4 mb-2">
+                <h2 className="text-3xl sm:text-4xl md:text-5xl font-black text-white italic tracking-tighter uppercase text-center sm:text-left">Professional Lot Size Calculator</h2>
+                <div className="px-4 py-1.5 bg-[#D4AF37]/10 border border-[#D4AF37]/20 rounded-full flex items-center gap-2 flex-shrink-0">
                   <div className="w-1.5 h-1.5 rounded-full bg-[#D4AF37] animate-pulse" />
                   <span className="text-[9px] font-black text-[#D4AF37] uppercase tracking-widest">Live Terminal</span>
                 </div>
               </div>
-              <p className="text-slate-500 text-xs font-bold uppercase tracking-[0.3em]">Institutional position sizing and professional risk management.</p>
+              <p className="text-slate-500 text-xs font-bold uppercase tracking-[0.3em] text-center sm:text-left">Institutional position sizing and professional risk management.</p>
             </div>
             <div className="flex items-center gap-4">
               <button className="px-6 py-3 bg-white/5 border border-white/10 rounded-xl text-[10px] font-black uppercase text-slate-500 hover:text-white transition-all flex items-center gap-2">

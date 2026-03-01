@@ -15,7 +15,10 @@ import {
   Download,
   Calendar,
   Globe,
-  Loader2
+  X,
+  AlertTriangle,
+  CheckCircle,
+  Clock
 } from 'lucide-react';
 import {
   AreaChart,
@@ -30,10 +33,15 @@ import {
   Cell
 } from 'recharts';
 import { apiClient, API_BASE_URL } from '../../../lib/apiClient';
+import { FullPageSkeletonLoader } from '../../../components/loading';
 
 export const StatsPage: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [data, setData] = useState<any>(null);
+  const [selectedCohort, setSelectedCohort] = useState<any>(null);
+  const [cohortStudents, setCohortStudents] = useState<any[]>([]);
+  const [loadingStudents, setLoadingStudents] = useState(false);
+  const [panelOpen, setPanelOpen] = useState(false);
 
   useEffect(() => {
     const fetchStats = async () => {
@@ -53,13 +61,26 @@ export const StatsPage: React.FC = () => {
     window.open(`${API_BASE_URL}/api/admin/stats/export?token=${apiClient.getAuthToken()}`, '_blank');
   };
 
+  const handleRowClick = async (cohort: any) => {
+    setSelectedCohort(cohort);
+    setPanelOpen(true);
+    setLoadingStudents(true);
+    try {
+      const res = await apiClient.get(`/api/admin/cohorts/${cohort.id}/students`);
+      if (res && res.students) {
+        setCohortStudents(res.students);
+      }
+    } catch (err) {
+      console.error('Failed to fetch cohort students:', err);
+    } finally {
+      setLoadingStudents(false);
+    }
+  };
+
   if (loading) {
     return (
       <div className="flex-1 flex items-center justify-center bg-[#0d1117]">
-        <div className="flex flex-col items-center gap-4">
-          <Loader2 className="w-12 h-12 text-[#D4AF37] animate-spin" />
-          <p className="text-[10px] font-black text-[#D4AF37] uppercase tracking-[0.4em]">Synchronizing Intelligence...</p>
-        </div>
+        <FullPageSkeletonLoader />
       </div>
     );
   }
@@ -230,7 +251,7 @@ export const StatsPage: React.FC = () => {
                 </thead>
                 <tbody className="divide-y divide-white/5">
                   {recentPrograms.map((c: any, i: number) => (
-                    <tr key={i} className="hover:bg-white/5 transition-all group">
+                    <tr key={i} onClick={() => handleRowClick(c)} className="hover:bg-white/5 transition-all group overflow-hidden cursor-pointer">
                       <td className="px-10 py-8">
                         <span className="text-xs font-black text-white uppercase tracking-widest">{c.title}</span>
                       </td>
@@ -292,6 +313,122 @@ export const StatsPage: React.FC = () => {
 
         </div>
       </div>
+
+      {/* SLIDE-OVER PANEL */}
+      <div className={`fixed inset-y-0 right-0 w-full md:w-[600px] bg-[#0d1117] border-l border-white/10 shadow-2xl transform transition-transform duration-500 ease-in-out z-50 flex flex-col ${panelOpen ? 'translate-x-0' : 'translate-x-full'}`}>
+        {/* Panel Header */}
+        <div className="p-8 border-b border-white/10 flex items-center justify-between shrink-0">
+          <div>
+            <h2 className="text-2xl font-black text-white italic uppercase tracking-tighter shrink-0">{selectedCohort?.title || 'Cohort Details'}</h2>
+            <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mt-1">Intake Lifecycle Active Roster</p>
+          </div>
+          <button onClick={() => setPanelOpen(false)} className="p-2 bg-white/5 hover:bg-white/10 rounded-full transition-colors relative z-10">
+            <X className="w-5 h-5 text-slate-400" />
+          </button>
+        </div>
+
+        {/* Panel Content */}
+        <div className="flex-1 overflow-y-auto p-8 custom-scrollbar relative">
+          {loadingStudents ? (
+            <div className="absolute inset-0 flex items-center justify-center">
+              <div className="flex flex-col items-center gap-4">
+                <div className="w-10 h-10 border-4 border-[#D4AF37]/20 border-t-[#D4AF37] rounded-full animate-spin" />
+                <p className="text-[9px] font-black text-[#D4AF37] uppercase tracking-[0.3em]">Extracting Records...</p>
+              </div>
+            </div>
+          ) : cohortStudents.length === 0 ? (
+            <div className="text-center py-20 opacity-50">
+              <Users className="w-12 h-12 mx-auto mb-4 text-slate-600" />
+              <p className="text-sm font-bold text-slate-400 uppercase tracking-widest">No Active Roster Data</p>
+            </div>
+          ) : (
+            <div className="space-y-4">
+              {cohortStudents.map((student: any) => (
+                <div key={student.enrollment_id} className="bg-[#161b22] border border-white/5 rounded-2xl p-6 relative overflow-hidden flex flex-col gap-4 group hover:border-white/10 transition-colors">
+                  {/* Status Ribbon */}
+                  {student.analytics?.is_at_risk && (
+                    <div className="absolute top-0 right-0 border-b-[40px] border-l-[40px] border-b-transparent border-l-transparent border-r-[40px] border-t-[40px] border-r-rose-500/20 border-t-rose-500/20 z-0">
+                      <AlertTriangle className="absolute top-[-25px] right-[-25px] w-4 h-4 text-rose-500" />
+                    </div>
+                  )}
+
+                  {/* Student Header */}
+                  <div className="flex items-center gap-4 relative z-10">
+                    <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-500/20 to-purple-500/20 border border-white/10 overflow-hidden flex items-center justify-center shrink-0">
+                      {student.user.avatar_url ? (
+                        <img src={student.user.avatar_url} alt={student.user.name} className="w-full h-full object-cover" />
+                      ) : (
+                        <span className="text-lg font-black text-blue-400 uppercase">{student.user.name.charAt(0)}</span>
+                      )}
+                    </div>
+                    <div>
+                      <h4 className="text-sm font-black text-white tracking-widest uppercase">{student.user.name}</h4>
+                      <p className="text-[10px] text-slate-500 font-bold">{student.user.email}</p>
+                    </div>
+                  </div>
+
+                  {/* Top Metrics Row */}
+                  <div className="grid grid-cols-2 gap-4 relative z-10">
+                    <div className="bg-black/20 rounded-xl p-4 border border-white/5">
+                      <div className="flex items-center justify-between mb-2">
+                        <span className="text-[9px] font-black text-slate-500 uppercase tracking-widest">Completion</span>
+                        <span className="text-xs font-black text-blue-400">{student.completion_percentage}%</span>
+                      </div>
+                      <div className="h-1.5 w-full bg-black rounded-full overflow-hidden">
+                        <div className="h-full bg-blue-500 rounded-full" style={{ width: `${student.completion_percentage}%` }} />
+                      </div>
+                    </div>
+
+                    <div className="bg-black/20 rounded-xl p-4 border border-white/5">
+                      <div className="flex items-center justify-between mb-1">
+                        <span className="text-[9px] font-black text-slate-500 uppercase tracking-widest">Avg Score</span>
+                        <span className="text-xs font-black text-[#D4AF37]">{student.analytics?.average_score || 0}%</span>
+                      </div>
+                      <p className="text-[8px] text-slate-600 font-bold uppercase mt-1">Cumulative Assessment</p>
+                    </div>
+                  </div>
+
+                  {/* Bottom Metrics Row */}
+                  <div className="flex items-center justify-between border-t border-white/5 pt-4 mt-2 relative z-10">
+                    <div className="flex flex-col gap-1">
+                      <span className="flex items-center gap-1.5 text-[9px] font-black text-slate-500 uppercase tracking-widest border border-white/5 px-2 py-1 rounded bg-black/40">
+                        <Activity className="w-3 h-3 text-emerald-500" />
+                        Engagement:
+                        <span className={student.analytics?.engagement_label === 'High' ? 'text-emerald-400' : student.analytics?.engagement_label === 'Medium' ? 'text-blue-400' : 'text-rose-400'}>
+                          {student.analytics?.engagement_label || 'N/A'} ({student.analytics?.engagement_rate || 0}%)
+                        </span>
+                      </span>
+                    </div>
+
+                    <div className="flex flex-col items-end gap-1 text-right">
+                      <span className="text-[9px] font-black text-slate-500 uppercase tracking-widest flex items-center gap-1 border border-white/5 px-2 py-1 rounded bg-black/40">
+                        <TrendingUp className="w-3 h-3 text-purple-400" /> Velocity: <span className="text-purple-400">{student.analytics?.velocity || 0}%/wk</span>
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* At-Risk Warning */}
+                  {student.analytics?.is_at_risk && (
+                    <div className="mt-2 text-[10px] font-bold text-rose-500/80 uppercase tracking-widest flex items-center gap-2 bg-rose-500/10 px-3 py-2 rounded-lg border border-rose-500/20 relative z-10">
+                      <AlertTriangle className="w-3.5 h-3.5 shrink-0" />
+                      Critical: Flagged for high drop-off probability.
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* OVERLAY */}
+      {panelOpen && (
+        <div
+          className="fixed inset-0 bg-black/60 backdrop-blur-sm z-40 transition-opacity"
+          onClick={() => setPanelOpen(false)}
+        />
+      )}
+
     </div>
   );
 };
