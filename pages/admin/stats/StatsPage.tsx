@@ -33,7 +33,7 @@ import {
   Cell
 } from 'recharts';
 import { apiClient, API_BASE_URL } from '../../../lib/apiClient';
-import { FullPageSkeletonLoader } from '../../../components/loading';
+import { FullPageSkeletonLoader } from '../../../components/loading/index';
 
 export const StatsPage: React.FC = () => {
   const [loading, setLoading] = useState(true);
