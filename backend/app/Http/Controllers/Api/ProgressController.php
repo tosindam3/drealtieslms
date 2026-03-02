@@ -443,14 +443,17 @@ class ProgressController extends Controller
                     return $this->forbiddenResponse('Week must be unlocked to access this topic');
                 }
 
-                // Check lesson sequencing within the module
+                // For time tracking, we allow viewing but warn about sequence
+                // Only enforce strict sequencing on completion, not on time tracking
                 $previousLesson = \App\Models\Lesson::where('module_id', $topic->lesson->module_id)
                     ->where('order', '<', $topic->lesson->order)
                     ->orderBy('order', 'desc')
                     ->first();
 
+                // Log warning but don't block time tracking
                 if ($previousLesson && !$previousLesson->isCompletedByUser($user)) {
-                    return $this->forbiddenResponse("Please complete '{$previousLesson->title}' first.");
+                    \Log::info("User {$user->id} tracking time on topic {$topicId} without completing previous lesson: {$previousLesson->title}");
+                    // Don't return error - allow time tracking for preview/review purposes
                 }
             }
 
